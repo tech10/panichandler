@@ -22,6 +22,9 @@ type Info struct {
 
 // Return the Info struct with all values.
 func newInfo(r interface{}, d []byte) *Info {
+	if r == nil {
+		return nil
+	}
 	i := &Info{}
 	i.StackBytes = d
 	i.StackString = fmt.Sprintf("%s", d)
@@ -35,11 +38,10 @@ func newInfo(r interface{}, d []byte) *Info {
 // Handle panics. Call this in a defer statement, like this.
 // panic_handler.Handle(HandlerFunc)
 func Handle(c HandlerFunc) {
-	r := recover()
-	if r == nil {
+	i := newInfo(recover(), debug.Stack())
+	if i == nil {
 		return
 	}
-	i := newInfo(r, debug.Stack())
 	if caller(i, c) {
 		return
 	}
@@ -59,11 +61,10 @@ func caller(i *Info, c HandlerFunc) bool {
 // Catch a panic within the function designed to run upon receiving a panic.
 // This will crash the program after printing out all stack traces.
 func nestedPanic(i *Info) {
-	r := recover()
-	if r == nil {
+	i_n := newInfo(recover(), debug.Stack())
+	if i_n == nil {
 		return
 	}
-	i_n := newInfo(r, debug.Stack())
 	fmt.Fprintf(os.Stderr, "WARNING!!!\nA panic within a panic catching function has been detected, this is a severe bug. Never fear, all stack traces are below.\nOriginally caught panic:\n%s\nPanic caused while catching original panic:\n%s\n", i.String(), i_n.String())
 	os.Exit(ExitCode)
 }
