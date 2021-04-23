@@ -1,6 +1,6 @@
 # Introduction
 
-This package will allow you to deal with panics in an extremely simple fassion. No channels, no contexts, no process forking, only a function call when a panic is caught.
+This package will allow you to deal with panics in an extremely simple fassion. You can either call a function when a panic is called, or send the information from the panic over a channel designed to capture panic information.
 
 
 ## Explanation
@@ -15,12 +15,18 @@ With all this information, you should be able to create a defer statement anywhe
 
 The panic_handler.HandlerFunc is only called when a panic is caught. If a panic is not caught, this function isn't called. If you initialize the panic_handler.Handle function with a nil value, the program will print the string formatted value and stack trace, then exit the program with a default exit code of 111. You can change this exit code with the panic_handler.ExitCode variable.
 
-The same exit code will be used if the function you define to catch a panic, causes a panic itself. The complete stack trace will be printed for both panics, along with the string value of the reason behind the panic. There may be redundent information in the stack traces, as in my testing, the stack trace from the second panic included everything from the first. Both are printed for now, however, to provide a bit more clarity on where individual panics occurred.
+The same exit code will be used if the function you define to catch a panic, causes a panic itself. The complete stack trace will be printed for both panics, along with the string value of the reason behind the panic. There may be redundent information in the stack traces, as in my testing, the stack trace from the second panic included everything from the first. Both are printed for now, however, to provide a bit more clarity on where individual panics occurred. This may change in the future, and as it won't be a breaking API change, only an information update, a patch version update will satisfy this, should it be changed.
+
+When sending the data of a panic over a channel with the HandleWithChan function, the data will only be sent if a panic is caught.
 
 This package makes no attempt to be concurrent safe within itself, due to the fact that multiple panics could be caught concurrently at one time, each one performing a specific task once they are caught. It should be up to the user to properly test their program for race conditions and make it concurrent safe.
 
+All tests should pass race testing.
+
 
 # Example
+
+## Function
 
 ```go
 package main
@@ -40,6 +46,33 @@ func main() {
 		fmt.Println("Goodbye!")
 	})
 	panic("This is a test panic.")
+}
+```
+
+
+## Channel
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/tech10/panic_handler"
+)
+
+func main() {
+	fmt.Println("This will test catching panics over a channel.")
+	c := make(chan *panic_handler.Info)
+	go func() {
+		defer panic_handler.HandleWithChan(c)
+		panic("Testing channels.")
+	}()
+	i := <-c
+	fmt.Println("This program has continued execution because a panic has been caught. Here is the reason for this panic.")
+	fmt.Println(i.PanicString)
+	fmt.Println("Here is the stack trace.")
+	fmt.Println(i.StackString)
+	fmt.Println("Goodbye!")
 }
 ```
 
