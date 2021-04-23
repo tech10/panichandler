@@ -51,8 +51,21 @@ func caller(i *Info, c HandlerFunc) bool {
 	if c == nil {
 		return false
 	}
+	defer nestedPanic(i)
 	c(i)
 	return true
+}
+
+// Catch a panic within the function designed to run upon receiving a panic.
+// This will crash the program after printing out all stack traces.
+func nestedPanic(i *Info) {
+	r := recover()
+	if r == nil {
+		return
+	}
+	i_n := newInfo(r, debug.Stack())
+	fmt.Fprintf(os.Stderr, "WARNING!!!\nA panic within a panic catching function has been detected, this is a severe bug. Never fear, all stack traces are below.\nOriginally caught panic:\n%s\nPanic caused while catching original panic:\n%s\n", i.String(), i_n.String())
+	os.Exit(ExitCode)
 }
 
 // Returns a string formatted output of the panic and stack trace.
