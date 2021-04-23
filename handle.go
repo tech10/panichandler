@@ -13,21 +13,11 @@ var ExitCode int = 111
 
 // Contains all information about a panic, formatted in various ways.
 type Info struct {
-
-	// Bytes of the returned panic interface.
-	PanicBytes []byte
-
-	// The direct interface panic was provided when called, either by the Go runtime or by the user.
-	PanicInterface interface{}
-
-	// String of the returned panic interface.
-	PanicString string
-
-	// The stack trace as taken from debug.Stack()
-	StackBytes []byte
-
-	// The stack as taken by debug.Stack() converted to a string.
-	StackString string
+	PanicBytes     []byte      // Bytes of the returned panic interface.
+	PanicInterface interface{} // The direct interface panic was provided when called, either by the Go runtime or by the user.
+	PanicString    string      // String of the returned panic interface.
+	StackBytes     []byte      // The stack trace as taken from debug.Stack()
+	StackString    string      // The stack as taken by debug.Stack() converted to a string.
 }
 
 // Return the Info struct with all values.
