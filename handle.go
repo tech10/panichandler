@@ -30,14 +30,16 @@ type Info struct {
 	StackString string
 }
 
-// Populate the Info struct with all values.
-func (i *Info) populate(r interface{}, d []byte) {
+// Return the Info struct with all values.
+func newInfo(r interface{}, d []byte) *Info {
+	i := &Info{}
 	i.StackBytes = d
 	i.StackString = fmt.Sprintf("%s", d)
 	i.PanicInterface = r
 	pstr := fmt.Sprintf("%s", r)
 	i.PanicString = pstr
 	i.PanicBytes = []byte(pstr)
+	return i
 }
 
 // Handle panics. Call this in a defer statement, like this.
@@ -48,8 +50,7 @@ func Handle(c HandlerFunc) {
 		return
 	}
 	d := debug.Stack()
-	i := &Info{}
-	i.populate(r, d)
+	i := newInfo(r, d)
 	if c != nil {
 		c(i)
 		return
@@ -65,7 +66,7 @@ func (i *Info) String() string {
 
 // Returns a byte formatted output of the panic and stack trace.
 func (i *Info) Bytes() []byte {
-	return []byte(i.PanicString + "\n" + i.StackString)
+	return []byte(i.String())
 }
 
 // Handle panics with this function.
