@@ -15,7 +15,10 @@ With all this information, you should be able to create a defer statement anywhe
 
 The panic_handler.HandlerFunc is only called when a panic is caught. If a panic is not caught, this function isn't called. If you initialize the panic_handler.Handle function with a nil value, the program will print the string formatted value and stack trace, then exit the program with a default exit code of 111. You can change this exit code with the panic_handler.ExitCode variable.
 
+The same exit code will be used if the function you define to catch a panic, causes a panic itself. The complete stack trace will be printed for both panics, along with the string value of the reason behind the panic. There may be redundent information in the stack traces, as in my testing, the stack trace from the second panic included everything from the first. Both are printed for now, however, to provide a bit more clarity on where individual panics occurred.
+
 This package makes no attempt to be concurrent safe within itself, due to the fact that multiple panics could be caught concurrently at one time, each one performing a specific task once they are caught. It should be up to the user to properly test their program for race conditions and make it concurrent safe.
+
 
 # Example
 
@@ -30,7 +33,7 @@ import (
 func main() {
 	fmt.Println("This will test catching panics.")
 	defer panic_handler.Handle(func(i *panic_handler.Info) {
-		fmt.Println("This function has been called because a panic has been caught. Here is the value of this panic.")
+		fmt.Println("This function has been called because a panic has been caught. Here is the reason for this panic.")
 		fmt.Println(i.PanicString)
 		fmt.Println("Here is the stack trace.")
 		fmt.Println(i.StackString)
@@ -39,6 +42,7 @@ func main() {
 	panic("This is a test panic.")
 }
 ```
+
 
 # Contributions
 
