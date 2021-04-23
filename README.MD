@@ -29,7 +29,7 @@ import (
 
 func main() {
 	fmt.Println("This will test catching panics.")
-	panic_handler.Handle(func(i *panic_handler.Info) {
+	defer panic_handler.Handle(func(i *panic_handler.Info) {
 		fmt.Println("This function has been called because a panic has been caught. Here is the value of this panic.")
 		fmt.Println(i.PanicString)
 		fmt.Println("Here is the stack trace.")
