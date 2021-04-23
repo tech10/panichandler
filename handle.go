@@ -39,14 +39,20 @@ func Handle(c HandlerFunc) {
 	if r == nil {
 		return
 	}
-	d := debug.Stack()
-	i := newInfo(r, d)
-	if c != nil {
-		c(i)
+	i := newInfo(r, debug.Stack())
+	if caller(i, c) {
 		return
 	}
 	fmt.Fprintln(os.Stderr, i.String())
 	os.Exit(ExitCode)
+}
+
+func caller(i *Info, c HandlerFunc) bool {
+	if c == nil {
+		return false
+	}
+	c(i)
+	return true
 }
 
 // Returns a string formatted output of the panic and stack trace.
