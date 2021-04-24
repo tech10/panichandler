@@ -17,6 +17,10 @@ func HandleTask(t Task) {
 	if i == nil {
 		return
 	}
-	defer nestedPanic(i)
+	taskRun(i, t, ExitCode)
+}
+
+func taskRun(i *Info, t Task, e int) {
+	defer nestedPanic(i, e)
 	t.DoPanicTask(i)
 }

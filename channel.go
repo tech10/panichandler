@@ -12,6 +12,13 @@ func HandleWithChan(c chan<- *Info) {
 	if i == nil {
 		return
 	}
+	channelSend(i, c)
+}
+
+func channelSend(i *Info, c chan<- *Info) {
+	if c == nil {
+		return
+	}
 	defer func() {
 		_ = recover()
 	}()

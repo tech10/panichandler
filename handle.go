@@ -11,24 +11,24 @@ import (
 // This can be set with panic_handler.ExitCode = code
 var ExitCode int = 111
 
-func caller(i *Info, c HandlerFunc) bool {
+func caller(i *Info, c HandlerFunc, e int) bool {
 	if c == nil {
 		return false
 	}
-	defer nestedPanic(i)
+	defer nestedPanic(i, e)
 	c(i)
 	return true
 }
 
 // Catch a panic within the function designed to run upon receiving a panic.
 // This will crash the program after printing out all stack traces.
-func nestedPanic(i *Info) {
+func nestedPanic(i *Info, e int) {
 	i_n := newInfo(recover(), debug.Stack())
 	if i_n == nil {
 		return
 	}
 	fmt.Fprintf(os.Stderr, "WARNING!!!\nA panic within a panic catching function has been detected, this is a severe bug. Never fear, all stack traces are below.\nOriginally caught panic:\n%s\nPanic caused while catching original panic:\n%s\n", i.String(), i_n.String())
-	os.Exit(ExitCode)
+	os.Exit(e)
 }
 
 // Handle panics. Call this in a defer statement, like this.
@@ -38,7 +38,7 @@ func Handle(c HandlerFunc) {
 	if i == nil {
 		return
 	}
-	if caller(i, c) {
+	if caller(i, c, ExitCode) {
 		return
 	}
 	fmt.Fprintln(os.Stderr, i.String())
