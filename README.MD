@@ -193,7 +193,7 @@ func main() {
 		fmt.Println("Context canceled.")
 		wg.Done()
 	}()
-	c := panic_handler.NewCapture()
+	c := panic_handler.New()
 	c.CC = ctxc
 	c.C = make(chan *panic_handler.Info)
 	wg.Add(1)

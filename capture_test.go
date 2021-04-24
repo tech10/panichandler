@@ -27,7 +27,7 @@ func Test_Capture(t *testing.T) {
 		logstr += "Context canceled."
 		wg.Done()
 	}()
-	c := NewCapture()
+	c := New()
 	c.CC = ctxc
 	c.C = make(chan *Info)
 	wg.Add(1)
