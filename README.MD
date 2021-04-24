@@ -1,11 +1,11 @@
 # Introduction
 
-This package will allow you to deal with panics in an extremely simple fassion. You can either call a function when a panic is called, or send the information from the panic over a channel designed to capture panic information.
+This package will allow you to deal with panics in an extremely simple fassion. You can either call a function when a panic is called, send the information from the panic over a channel designed to capture panic information, or cancel contexts with a provided context.CancelFunc.
 
 
 ## Explanation
 
-In writing one of my programs, I wanted a way to handle panics in the same fassion across the application. Using a defer statement to do this seemed fine, but calling an included function within that specific program seemed somewhat limiting to me, so I created this package, just in case anyone else might want to do something similar.
+In writing one of my programs, I wanted a way to handle panics in the same fassion across the application. Using a defer statement to do this seemed fine, but calling an included function within that specific program seemed somewhat limiting to me, so I created this package, just in case anyone else might want to do something similar. I expanded it since then to work with channels and contexts.
 
 Full documentation is available with go doc, but here are a couple of different things.
 
@@ -18,6 +18,8 @@ The panic_handler.HandlerFunc is only called when a panic is caught. If a panic 
 The same exit code will be used if the function you define to catch a panic, causes a panic itself. The complete stack trace will be printed for both panics, along with the string value of the reason behind the panic. There may be redundent information in the stack traces, as in my testing, the stack trace from the second panic included everything from the first. Both are printed for now, however, to provide a bit more clarity on where individual panics occurred. This may change in the future, and as it won't be a breaking API change, only an information update, a patch version update will satisfy this, should it be changed.
 
 When sending the data of a panic over a channel with the HandleWithChan function, the data will only be sent if a panic is caught.
+
+When using the panic_handler.HandleWithContextCancel function, you cannot declare the context.CancelFunc value as nil. The program will warn you of an uncatchable panic, then will terminate. Yu can, however, make the panic_handler.HandleFunc a nil value, in which case, only the context.CancelFunc will be called. I wouldn't recommend this, though, as you may want to do something more with your panics.
 
 This package makes no attempt to be concurrent safe within itself, due to the fact that multiple panics could be caught concurrently at one time, each one performing a specific task once they are caught. It should be up to the user to properly test their program for race conditions and make it concurrent safe.
 
@@ -73,6 +75,48 @@ func main() {
 	fmt.Println("Here is the stack trace.")
 	fmt.Println(i.StackString)
 	fmt.Println("Goodbye!")
+}
+```
+
+
+## Context cancelation
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/tech10/panic_handler"
+	"sync"
+)
+
+func main() {
+	fmt.Println("Catching a panic and canceling contexts.")
+	var wg sync.WaitGroup
+	mctx, cancel := context.WithCancel(context.Background())
+	wg.Add(1)
+	go func() {
+		<-mctx.Done()
+		fmt.Println("Parent context canceled.")
+		wg.Done()
+	}()
+	var cctx context.Context
+	cctx, _ = context.WithCancel(mctx)
+	wg.Add(1)
+	go func() {
+		<-cctx.Done()
+		fmt.Println("Child context canceled.")
+		wg.Done()
+	}()
+	go func() {
+		defer panic_handler.HandleWithContextCancel(cancel, func(i *Info) {
+			fmt.Println("Panic caught.\n", i.String())
+		})
+		panic("Testing context cancelations.")
+	}()
+	wg.Wait()
+	fmt.Println("All contexts have been canceled. Goodbye.")
 }
 ```
 
