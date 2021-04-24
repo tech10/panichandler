@@ -3,7 +3,6 @@ package panic_handler
 import (
 	"sync"
 	"testing"
-	"time"
 )
 
 var called bool = false
@@ -17,10 +16,13 @@ var h HandlerFunc = func(i *Info) {
 }
 
 func Test_panic_uncaught(t *testing.T) {
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		defer Handle(h)
 	}()
-	time.Sleep(time.Millisecond * 10)
+	wg.Wait()
 	l.Lock()
 	defer l.Unlock()
 	if called {
@@ -31,14 +33,17 @@ func Test_panic_uncaught(t *testing.T) {
 }
 
 func Test_panic_caught(t *testing.T) {
+	var wg sync.WaitGroup
 	l.Lock()
 	called = false
 	l.Unlock()
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		defer Handle(h)
 		panic("testing")
 	}()
-	time.Sleep(time.Millisecond * 10)
+	wg.Wait()
 	l.Lock()
 	defer l.Unlock()
 	if !called {
@@ -49,13 +54,16 @@ func Test_panic_caught(t *testing.T) {
 }
 
 func Test_panic_value(t *testing.T) {
+	var wg sync.WaitGroup
 	l.Lock()
 	value := "This is a test panic value."
 	pstr := ""
 	sstr := ""
 	fstr := ""
 	l.Unlock()
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		defer Handle(func(i *Info) {
 			l.Lock()
 			pstr = i.PanicString
@@ -65,7 +73,7 @@ func Test_panic_value(t *testing.T) {
 		})
 		panic(value)
 	}()
-	time.Sleep(time.Millisecond * 10)
+	wg.Wait()
 	l.Lock()
 	defer l.Unlock()
 	if value != pstr {
