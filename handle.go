@@ -32,7 +32,7 @@ func nestedPanic(i *Info) {
 }
 
 // Handle panics. Call this in a defer statement, like this.
-// panic_handler.Handle(HandlerFunc)
+// panic_handler.Handle(panic_handler.HandlerFunc)
 func Handle(c HandlerFunc) {
 	i := newInfo(recover(), debug.Stack())
 	if i == nil {

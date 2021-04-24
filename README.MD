@@ -7,7 +7,7 @@ This package will allow you to deal with panics in an extremely simple fassion. 
 
 In writing one of my programs, I wanted a way to handle panics in the same fassion across the application. Using a defer statement to do this seemed fine, but calling an included function within that specific program seemed somewhat limiting to me, so I created this package, just in case anyone else might want to do something similar. I expanded it since then to work with channels, context cancel functions, and implemented a Task interface.
 
-Full documentation is available with go doc, but here are a couple of different things.
+[Full documentation](https://pkg.go.dev/github.com/tech10/panic_handler) is available, but here are a couple of different things.
 
 The panic_handler.Info struct has variables that will be populated with the precise value of the call to recover, along with its string and byte formatted copies. The stack trace is also available as bytes and a string. A complete format of the string value to recover, then the stack trace on another line, is available in both string and bytes using appropriate functions.
 
