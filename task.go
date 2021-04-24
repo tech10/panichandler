@@ -20,7 +20,7 @@ func HandleTask(t Task) {
 		return
 	}
 	if t == nil {
-		fmt.Fprintf(os.Stderr, "WARNING!!!\nThe HandleTask function cannot have a nil pointer.\n%s", i.String())
+		fmt.Fprintf(os.Stderr, "WARNING!!!\nThe HandleTask function cannot have a nil pointer.\nPanic reason and stack trace:\n%s\n", i.String())
 		os.Exit(ExitCode)
 	}
 	taskRun(i, t, ExitCode)

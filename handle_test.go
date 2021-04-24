@@ -58,7 +58,6 @@ func Test_panic_value(t *testing.T) {
 	l.Lock()
 	value := "This is a test panic value."
 	pstr := ""
-	sstr := ""
 	fstr := ""
 	l.Unlock()
 	wg.Add(1)
@@ -67,7 +66,6 @@ func Test_panic_value(t *testing.T) {
 		defer Handle(func(i *Info) {
 			l.Lock()
 			pstr = i.PanicString
-			sstr = i.StackString
 			fstr = i.String()
 			l.Unlock()
 		})
@@ -80,6 +78,5 @@ func Test_panic_value(t *testing.T) {
 		t.Fatal("The following should have been equal, and are not:\n\"" + value + "\", \"" + pstr + "\"")
 	}
 	t.Log("Panic caught with the following value: \"" + pstr)
-	t.Log("The following stack trace was retrieved:\n\"" + sstr + "\"")
 	t.Log("The complete formatted string of the panic value and runtime:\n\"" + fstr + "\"")
 }

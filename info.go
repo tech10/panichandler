@@ -2,6 +2,7 @@ package panic_handler
 
 import (
 	"fmt"
+"strings"
 )
 
 // Handle panics with this function.
@@ -33,7 +34,7 @@ func newInfo(r interface{}, d []byte) *Info {
 
 // Returns a string formatted output of the panic and stack trace.
 func (i *Info) String() string {
-	return i.PanicString + "\n" + i.StackString
+	return i.PanicString + "\n" + strings.TrimSpace(i.StackString)
 }
 
 // Returns a byte formatted output of the panic and stack trace.
