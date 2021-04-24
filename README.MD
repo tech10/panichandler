@@ -19,7 +19,7 @@ The same exit code will be used if the function you define to catch a panic, cau
 
 When sending the data of a panic over a channel with the HandleWithChan function, the data will only be sent if a panic is caught.
 
-When using the panic_handler.HandleWithContextCancel function, you cannot declare the context.CancelFunc value as nil. The program will warn you of an uncatchable panic, then will terminate. Yu can, however, make the panic_handler.HandleFunc a nil value, in which case, only the context.CancelFunc will be called. I wouldn't recommend this, though, as you may want to do something more with your panics.
+When using the panic_handler.HandleWithContextCancel function, you cannot declare the context.CancelFunc value as nil. The program will warn you of an uncatchable panic, then will terminate. You can, however, make the panic_handler.HandleFunc a nil value, in which case, only the context.CancelFunc will be called. I wouldn't recommend this, though, as you may want to do something more with your panics.
 
 This package makes no attempt to be concurrent safe within itself, due to the fact that multiple panics could be caught concurrently at one time, each one performing a specific task once they are caught. It should be up to the user to properly test their program for race conditions and make it concurrent safe.
 
