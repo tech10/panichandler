@@ -28,7 +28,7 @@ This package makes no attempt to be concurrent safe within itself, due to the fa
 All tests should pass race testing.
 
 
-# Example
+# Examples
 
 ## Function
 
