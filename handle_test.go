@@ -23,6 +23,7 @@ func Test_panic_uncaught(t *testing.T) {
 	time.Sleep(time.Millisecond * 10)
 	l.Lock()
 	if called {
+		called = false
 		l.Unlock()
 		t.Fatal("A panic was never caught here, but the function to catch them has been called.")
 	}
@@ -44,6 +45,7 @@ func Test_panic_caught(t *testing.T) {
 		l.Unlock()
 		t.Fatal("A panic was not caught here, but it should have been.")
 	}
+	called = false
 	l.Unlock()
 	t.Log("A panic was caught.")
 }

@@ -10,5 +10,8 @@ func HandleWithChan(c chan<- *Info) {
 	if i == nil {
 		return
 	}
+	defer func() {
+		recover()
+	}()
 	c <- i
 }
