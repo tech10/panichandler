@@ -1,6 +1,8 @@
 package panic_handler
 
 import (
+	"fmt"
+	"os"
 	"runtime/debug"
 )
 
@@ -16,6 +18,10 @@ func HandleTask(t Task) {
 	i := newInfo(recover(), debug.Stack())
 	if i == nil {
 		return
+	}
+	if t == nil {
+		fmt.Fprintf(os.Stderr, "WARNING!!!\nThe HandleTask function cannot have a nil pointer.\n%s", i.String())
+		os.Exit(ExitCode)
 	}
 	taskRun(i, t, ExitCode)
 }
