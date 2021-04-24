@@ -31,9 +31,15 @@ func (c *Capture) Catch() {
 		fmt.Fprintf(os.Stderr, "Uninitialized Capture struct used, invalid operation.\n%s", i.String())
 		os.Exit(c.ExitCode)
 	}
-	caller(i, c.F, c.ExitCode)
-	taskRun(i, c.T, c.ExitCode)
-	channelSend(i, c.C)
+	if c.F != nil {
+		caller(i, c.F, c.ExitCode)
+	}
+	if c.T != nil {
+		taskRun(i, c.T, c.ExitCode)
+	}
+	if c.C != nil {
+		channelSend(i, c.C)
+	}
 	if c.CC != nil {
 		c.CC()
 	}
