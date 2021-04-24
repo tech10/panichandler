@@ -22,12 +22,11 @@ func Test_panic_uncaught(t *testing.T) {
 	}()
 	time.Sleep(time.Millisecond * 10)
 	l.Lock()
+	defer l.Unlock()
 	if called {
 		called = false
-		l.Unlock()
 		t.Fatal("A panic was never caught here, but the function to catch them has been called.")
 	}
-	l.Unlock()
 	t.Log("No panic was caught.")
 }
 
@@ -41,12 +40,11 @@ func Test_panic_caught(t *testing.T) {
 	}()
 	time.Sleep(time.Millisecond * 10)
 	l.Lock()
+	defer l.Unlock()
 	if !called {
-		l.Unlock()
 		t.Fatal("A panic was not caught here, but it should have been.")
 	}
 	called = false
-	l.Unlock()
 	t.Log("A panic was caught.")
 }
 
@@ -69,11 +67,10 @@ func Test_panic_value(t *testing.T) {
 	}()
 	time.Sleep(time.Millisecond * 10)
 	l.Lock()
+	defer l.Unlock()
 	if value != pstr {
-		l.Unlock()
 		t.Fatal("The following should have been equal, and are not:\n\"" + value + "\", \"" + pstr + "\"")
 	}
-	l.Unlock()
 	t.Log("Panic caught with the following value: \"" + pstr)
 	t.Log("The following stack trace was retrieved:\n\"" + sstr + "\"")
 	t.Log("The complete formatted string of the panic value and runtime:\n\"" + fstr + "\"")

@@ -32,15 +32,13 @@ func Test_HandleWithChanClosed(t *testing.T) {
 		panic("Test sending a panic value over a closed channel.")
 	}()
 	cl.Lock()
+	defer cl.Unlock()
 	i, open := <-c
 	if open {
-		cl.Unlock()
 		t.Fatal("The channel is open, and should not have been.")
 	}
 	if i != nil {
-		cl.Unlock()
 		t.Fatal("The caught panic value of *Info is not nil, and should have been.\n", i.String())
 	}
-	cl.Unlock()
 	t.Log("A panic was caught, but data failed to send over a closed channel. The program has silently recovered.")
 }
