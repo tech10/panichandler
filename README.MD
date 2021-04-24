@@ -1,11 +1,17 @@
 # Introduction
 
-This package will allow you to deal with panics in an extremely simple fassion. You can either call a function when a panic is called, send the information from the panic over a channel designed to capture panic information, cancel contexts with a provided context.CancelFunc, or implement the panic_handler.Task interface by defining its DoPanicTask method.
+This package will allow you to deal with panics in the following ways:
+
+- Call a function when a panic is called.
+- Send the information from the panic over a channel.
+- Cancel contexts with a provided context.CancelFunc.
+- Implement the panic_handler.Task interface by defining its DoPanicTask method.
+- All these things in a struct, which can execute everything stated above, only some of these things, or only one of them.
 
 
 ## Explanation
 
-In writing one of my programs, I wanted a way to handle panics in the same fassion across the application. Using a defer statement to do this seemed fine, but calling an included function within that specific program seemed somewhat limiting to me, so I created this package, just in case anyone else might want to do something similar. I expanded it since then to work with channels, context cancel functions, and implemented a Task interface.
+In writing one of my programs, I wanted a way to handle panics in the same fassion across the application. Using a defer statement to do this seemed fine, but calling an included function within that specific program seemed somewhat limiting to me, so I created this package, just in case anyone else might want to do something similar. I expanded it since then to work with channels, context cancel functions, implemented a Task interface, and a struct which can deal with everything.
 
 [Full documentation](https://pkg.go.dev/github.com/tech10/panic_handler) is available, but here are a couple of different things.
 
@@ -23,7 +29,7 @@ When using the panic_handler.HandleWithContextCancel function, you cannot declar
 
 The panic_handler.Task interface defines one method, DoPanicTask(*panic_handler.Info)
 
-The panic_handler.Capture struct can catch panics and pass them to a function, task interface, channel, and context cancel function, all at the same time. A nil value on all such values will cause the program to exit with the stacktrace of the panic that was essentially uncaught. Catching panics with an uninitialized struct is not going to do anything for you, so the library won't let you do this. There is only one partial exception to this rule. If you catch a panic by using an already canceled contexts CancelFunc, the panic will be caught silently. This is bad practice, don't do this, and please, do check your programs.
+The panic_handler.Capture struct can catch panics and pass them to a function, task interface, channel, and context cancel function, in that specific order and one at a time. A nil value on all such values will cause the program to exit with the stacktrace of the panic that was essentially uncaught. Catching panics with an uninitialized struct is not going to do anything for you, so the library won't let you do this. There is only one partial exception to this rule. If you catch a panic by using an already canceled contexts CancelFunc, the panic will be caught silently. This is bad practice, don't do this, and please, do check your programs.
 
 This package makes no attempt to be concurrent safe within itself, due to the fact that multiple panics could be caught concurrently at one time, each one performing a specific task once they are caught. It should be up to the user to properly test their program for race conditions and make it concurrent safe.
 
@@ -101,19 +107,21 @@ func main() {
 	mctx, cancel := context.WithCancel(context.Background())
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		<-mctx.Done()
 		fmt.Println("Parent context canceled.")
-		wg.Done()
 	}()
 	var cctx context.Context
 	cctx, _ = context.WithCancel(mctx)
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		<-cctx.Done()
 		fmt.Println("Child context canceled.")
-		wg.Done()
 	}()
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		defer panic_handler.HandleWithContextCancel(cancel, func(i *Info) {
 			fmt.Println("Panic caught.\n", i.String())
 		})
@@ -141,16 +149,17 @@ type CP struct {
 }
 
 func (cp *CP) DoPanicTask(i *panic_handler.Info) {
+	defer cp.Done()
 	fmt.Println("Panic captured.")
 	fmt.Println(i.String())
-	cp.Done()
 }
 
 func main() {
 	fmt.Println("Capture panics with the Task interface.")
 	c := &CP{}
-	c.Add(1)
+	c.Add(2)
 	go func() {
+		defer c.Done()
 		defer panic_handler.HandleTask(c)
 		panic("Testing the Task interface with this panic.")
 	}()
@@ -161,6 +170,8 @@ func main() {
 
 
 ## Capture struct
+
+This is the only example that will have an uncaught panic, to demonstrate that an uninitialized panic_handler.Capture struct can't be used.
 
 ```go
 package main
@@ -187,37 +198,37 @@ func main() {
 	ctx, ctxc := context.WithCancel(context.Background())
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		<-ctx.Done()
 		l.Lock()
 		defer l.Unlock()
 		fmt.Println("Context canceled.")
-		wg.Done()
 	}()
 	c := panic_handler.New()
 	c.CC = ctxc
 	c.C = make(chan *panic_handler.Info)
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		<-c.C
 		l.Lock()
 		defer l.Unlock()
 		fmt.Println("Channel received data.")
-		wg.Done()
 	}()
 	wg.Add(1)
 	c.F = func(i *panic_handler.Info) {
+		defer wg.Done()
 		l.Lock()
 		defer l.Unlock()
 		fmt.Println("Function called.")
-		wg.Done()
 	}
 	wg.Add(1)
 	c.T = &captT{
 		f: func() {
+			defer wg.Done()
 			l.Lock()
 			defer l.Unlock()
 			fmt.Println("Task interface executed.")
-			wg.Done()
 		},
 	}
 	wg.Add(1)
@@ -228,7 +239,7 @@ func main() {
 	}()
 	wg.Wait()
 	fmt.Println("All the work is done.")
-	fmt.Println("Let's take the task and channel out of the work, now. Notice that the context will not cancel again.")
+	fmt.Println("Let's take the task and channel out of the work, now. Notice that the context will not cancel again, since it has already been canceled.")
 	c.T = nil
 	c.C = nil
 	fmt.Println("Catch another panic.")
