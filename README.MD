@@ -23,6 +23,8 @@ When using the panic_handler.HandleWithContextCancel function, you cannot declar
 
 The panic_handler.Task interface defines one method, DoPanicTask(*panic_handler.Info)
 
+The panic_handler.Capture struct can catch panics and pass them to a function, task interface, channel, and context cancel function, all at the same time. A nil value on all such values will cause the program to exit with the stacktrace of the panic that was essentially uncaught. Catching panics with an uninitialized struct is not going to do anything for you, so the library won't let you do this. There is only one partial exception to this rule. If you catch a panic by using an already canceled contexts CancelFunc, the panic will be caught silently. This is bad practice, don't do this, and please, do check your programs.
+
 This package makes no attempt to be concurrent safe within itself, due to the fact that multiple panics could be caught concurrently at one time, each one performing a specific task once they are caught. It should be up to the user to properly test their program for race conditions and make it concurrent safe.
 
 All tests should pass race testing.
@@ -154,6 +156,108 @@ func main() {
 	}()
 	c.Wait()
 	fmt.Println("Panic caught, task complete. Goodbye.")
+}
+```
+
+
+## Capture struct
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/tech10/panic_handler"
+	"sync"
+)
+
+type captT struct {
+	f func()
+}
+
+func (c *captT) DoPanicTask(i *panic_handler.Info) {
+	c.f()
+}
+
+func main() {
+	fmt.Println("Testing capture struct. Watch as a panic is caught and passed down the stack of a function, interface, channel, and context cancelation.")
+	var l sync.Mutex
+	var wg sync.WaitGroup
+	ctx, ctxc := context.WithCancel(context.Background())
+	wg.Add(1)
+	go func() {
+		<-ctx.Done()
+		l.Lock()
+		defer l.Unlock()
+		fmt.Println("Context canceled.")
+		wg.Done()
+	}()
+	c := panic_handler.NewCapture()
+	c.CC = ctxc
+	c.C = make(chan *panic_handler.Info)
+	wg.Add(1)
+	go func() {
+		<-c.C
+		l.Lock()
+		defer l.Unlock()
+		fmt.Println("Channel received data.")
+		wg.Done()
+	}()
+	wg.Add(1)
+	c.F = func(i *panic_handler.Info) {
+		l.Lock()
+		defer l.Unlock()
+		fmt.Println("Function called.")
+		wg.Done()
+	}
+	wg.Add(1)
+	c.T = &captT{
+		f: func() {
+			l.Lock()
+			defer l.Unlock()
+			fmt.Println("Task interface executed.")
+			wg.Done()
+		},
+	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer c.Catch()
+		panic("Demonstrating capture struct.")
+	}()
+	wg.Wait()
+	fmt.Println("All the work is done.")
+	fmt.Println("Let's take the task and channel out of the work, now. Notice that the context will not cancel again.")
+	c.T = nil
+	c.C = nil
+	fmt.Println("Catch another panic.")
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		defer c.Catch()
+		panic("Removing work.")
+	}()
+	wg.Wait()
+	fmt.Println("Let's only cancel a context. Don't do this with an already canceled context like this, it won't work out well for you.")
+	c.F = nil
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer c.Catch()
+		panic("A silent panic, you really don't want this in production.")
+	}()
+	wg.Wait()
+	fmt.Println("And as you can see, a Capture struct with all values at nil won't capture panics, crash the program instead, as we are expecting to do something in the struct.")
+	c.CC = nil
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		defer c.Catch()
+		panic("Empty the struct.")
+	}()
+	wg.Wait()
+	fmt.Println("If we got this far, something is wrong. Have a good day!")
 }
 ```
 
