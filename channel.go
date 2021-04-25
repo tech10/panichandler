@@ -18,15 +18,20 @@ func HandleWithChan(c chan<- *Info) {
 		fmt.Fprintf(os.Stderr, "WARNING!!!\nThe HandleWithChan function cannot have a nil channel.\nPanic reason and stack trace:\n%s\n", i.String())
 		os.Exit(ExitCode)
 	}
-	channelSend(i, c)
+	channelSend(i, c, ExitCode)
 }
 
-func channelSend(i *Info, c chan<- *Info) {
+func channelSend(i *Info, c chan<- *Info, e int) {
 	if c == nil {
 		return
 	}
 	defer func() {
-		_ = recover()
+		i_n := newInfo(recover(), debug.Stack())
+		if i_n == nil {
+			return
+		}
+		fmt.Fprintf(os.Stderr, "WARNING!!!\nEither your program has sent the panic information to a closed channel, or the receiver of the channel caused a panic. Original panic information and stack trace:\n%s\nCaught panic and stack trace:\n%s\n", i.String(), i_n.String())
+		os.Exit(e)
 	}()
 	c <- i
 }

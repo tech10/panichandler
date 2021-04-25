@@ -45,7 +45,7 @@ func (c *Capture) Catch() {
 		taskRun(i, c.T, c.ExitCode)
 	}
 	if c.C != nil {
-		channelSend(i, c.C)
+		channelSend(i, c.C, c.ExitCode)
 	}
 	if c.CC != nil {
 		c.CC()
