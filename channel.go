@@ -26,11 +26,10 @@ func channelSend(i *Info, c chan<- *Info, e int) {
 		return
 	}
 	defer func() {
-		i_n := newInfo(recover(), debug.Stack())
-		if i_n == nil {
+		if r := recover(); r == nil {
 			return
 		}
-		fmt.Fprintf(os.Stderr, "WARNING!!!\nEither your program has sent the panic information to a closed channel, or the receiver of the channel caused a panic. Original panic information and stack trace:\n%s\nCaught panic and stack trace:\n%s\n", i.String(), i_n.String())
+		fmt.Fprintf(os.Stderr, "WARNING!!!\nYour program has sent the panic information to a closed channel. Panic information and stack trace:\n%s\n", i.String())
 		os.Exit(e)
 	}()
 	c <- i
