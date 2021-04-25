@@ -11,12 +11,12 @@ import (
 // The execution order for catching panics is the following:
 // Your own defined function, a task, a channel, and a context.CancelFunc.
 // Any of these values can be omitted, but all of them can't be omitted.
-// If you try and catch panics without filling one value,
+// If you try and catch panics without filling at least one value,
 // and a panic is recovered from,
 // your program will have the panic passed along to standard error,
 // and will exit immediately.
 type Capture struct {
-	F        HandlerFunc        // Function to execute to handle panics, this is called first.
+	F        HandlerFunc        // Function to execute, handling panics, this is called first.
 	T        Task               // Interface to run the DoPanicTask method on, this is called second.
 	C        chan *Info         // Channel to pass panic information to, this is done third.
 	CC       context.CancelFunc // Context cancelation function, this is called last.
