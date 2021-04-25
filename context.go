@@ -15,10 +15,10 @@ func HandleWithContextCancel(cancel context.CancelFunc, c HandlerFunc) {
 	if i == nil {
 		return
 	}
-	caller(i, c, ExitCode)
 	if cancel == nil {
-		fmt.Fprintf(os.Stderr, "Nil context CancelFunc provided, uncatchable panic.\n%s", i.String())
+		fmt.Fprintf(os.Stderr, "WARNING!!!\nNil context CancelFunc provided, uncatchable panic.\n%s\n", i.String())
 		os.Exit(ExitCode)
 	}
+	caller(i, c, ExitCode)
 	cancel()
 }
