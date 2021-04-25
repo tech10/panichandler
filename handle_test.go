@@ -78,5 +78,5 @@ func Test_panic_value(t *testing.T) {
 		t.Fatal("The following should have been equal, and are not:\n\"" + value + "\", \"" + pstr + "\"")
 	}
 	t.Log("Panic caught with the following value: \"" + pstr)
-	t.Log("The complete formatted string of the panic value and runtime:\n\"" + fstr + "\"")
+	t.Log("The complete formatted string of the panic value and stack trace:\n" + fstr)
 }

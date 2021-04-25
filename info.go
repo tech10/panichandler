@@ -2,7 +2,7 @@ package panic_handler
 
 import (
 	"fmt"
-"strings"
+	"strings"
 )
 
 // Handle panics with this function.

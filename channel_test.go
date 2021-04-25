@@ -18,7 +18,7 @@ func Test_HandleWithChan(t *testing.T) {
 	if i == nil {
 		t.Fatal("The caught panic value of *Info is nil, and should not have been.")
 	}
-	t.Log(i.String())
+	t.Log("Retrieved value of panic:\n" + i.PanicString)
 }
 
 func Test_HandleWithChanClosed(t *testing.T) {
@@ -38,7 +38,7 @@ func Test_HandleWithChanClosed(t *testing.T) {
 		t.Fatal("The channel is open, and should not have been.")
 	}
 	if i != nil {
-		t.Fatal("The caught panic value of *Info is not nil, and should have been.\n", i.String())
+		t.Fatal("The caught panic value of *Info is not nil, and should have been. Full value and stack trace:\n", i.String())
 	}
 	t.Log("A panic was caught, but data failed to send over a closed channel. The program has silently recovered.")
 }
