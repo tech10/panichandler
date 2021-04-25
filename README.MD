@@ -23,7 +23,7 @@ The panic_handler.HandlerFunc is only called when a panic is caught. If a panic 
 
 The same exit code will be used if the function you define to catch a panic, causes a panic itself. This will be the same for the Task interface, also. The complete stack trace will be printed for both panics, along with the string value of the reason behind the panic. There may be redundent information in the stack traces, as in my testing, the stack trace from the second panic included everything from the first. Both are printed for now, however, to provide a bit more clarity on where individual panics occurred. This may change in the future, and as it won't be a breaking API change, only an information update, a patch version update will satisfy this, should it be changed.
 
-When sending the data of a panic over a channel with the HandleWithChan function, the data will only be sent if a panic is caught.
+When sending the data of a panic over a channel with the HandleWithChan function, the data will only be sent if a panic is caught. The panic will not be sent over a closed channel, and instead, the program will fail silently for the moment. Attempting to send data over a nil channel will cause the program to exit with the stack trace of the panic printed, and a warning that a nil channel is unsupported.
 
 When using the panic_handler.HandleWithContextCancel function, you cannot declare the context.CancelFunc value as nil. The program will warn you of an uncatchable panic, then will terminate. You can, however, make the panic_handler.HandleFunc a nil value, in which case, only the context.CancelFunc will be called. I wouldn't recommend this, though, as you may want to do something more with your panics.
 
