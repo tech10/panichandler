@@ -23,19 +23,26 @@ type Capture struct {
 	ExitCode int                // Status to exit with if a panic occurrs that crashes the program, and isn't caught by anything else.
 }
 
+// Create a new instance of the Capture struct, uninitialized.
+// The only variable set here is its ExitCode,
+// which is set to the default ExitCode variable.
 func New() *Capture {
 	return &Capture{
 		ExitCode: ExitCode,
 	}
 }
 
+// Catch panics, call this in a defer statement.
+// Only do this if you have initialized the Capture struct
+// with a function, Task interface,
+// channel, or context.CancelFunc
 func (c *Capture) Catch() {
 	i := newInfo(recover(), debug.Stack())
 	if i == nil {
 		return
 	}
 	if c.F == nil && c.T == nil && c.C == nil && c.CC == nil {
-		fmt.Fprintf(os.Stderr, "Uninitialized Capture struct used, invalid operation.\n%s", i.String())
+		fmt.Fprintf(os.Stderr, "Uninitialized Capture struct used, invalid operation.\n%s\n", i.String())
 		os.Exit(c.ExitCode)
 	}
 	if c.F != nil {
