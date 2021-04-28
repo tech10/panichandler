@@ -77,3 +77,13 @@ func Test_CaptureGetContext(t *testing.T) {
 	<-ctx.Done()
 	t.Log("Context canceled successfully.")
 }
+
+func Test_CaptureCatchAndCancelContext(t *testing.T) {
+	c := New()
+	ctx := c.GetContext()
+	go func() {
+		defer c.CatchAndCancelContext()
+	}()
+	<-ctx.Done()
+	t.Log("Context canceled successfully, and no panic was caused.")
+}

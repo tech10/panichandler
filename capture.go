@@ -32,12 +32,8 @@ func New() *Capture {
 	}
 }
 
-// Catch panics, call this in a defer statement.
-// Only do this if you have initialized the Capture struct
-// with a function, Task interface,
-// channel, or context.CancelFunc
-func (c *Capture) Catch() {
-	i := newInfo(recover(), debug.Stack())
+func (c *Capture) catcher(r interface{}) {
+	i := newInfo(r, debug.Stack())
 	if i == nil {
 		return
 	}
@@ -59,6 +55,14 @@ func (c *Capture) Catch() {
 	}
 }
 
+// Catch panics, call this in a defer statement.
+// Only do this if you have initialized the Capture struct
+// with a function, Task interface,
+// channel, or context.CancelFunc
+func (c *Capture) Catch() {
+	c.catcher(recover())
+}
+
 // Get a context that will be returned to you, and canceled upon a panic.
 // If you have already set a context cancelation function, this will override it.
 // The context returned should be used on anything you want to cancel,
@@ -70,4 +74,12 @@ func (c *Capture) GetContext() context.Context {
 	var ctx context.Context
 	ctx, c.CC = getContext()
 	return ctx
+}
+
+// Always cancel a context, if it is available.
+func (c *Capture) CatchAndCancelContext() {
+	c.catcher(recover())
+	if c.CC != nil {
+		c.CC()
+	}
 }
