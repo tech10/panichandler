@@ -63,6 +63,9 @@ func (c *Capture) Catch() {
 // If you have already set a context cancelation function, this will override it.
 // The context returned should be used on anything you want to cancel,
 // and will not be derived from any parent contexts.
+// This is a context that is designed to be canceled
+// upon a panic, though you could call the Capture.CC function yourself.
+// You may need to do this if a panic is not caught.
 func (c *Capture) GetContext() context.Context {
 	var ctx context.Context
 	ctx, c.CC = getContext()
