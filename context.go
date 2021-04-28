@@ -22,3 +22,7 @@ func HandleWithContextCancel(cancel context.CancelFunc, c HandlerFunc) {
 	caller(i, c, ExitCode)
 	cancel()
 }
+
+func getContext() (context.Context, context.CancelFunc) {
+	return context.WithCancel(context.Background())
+}

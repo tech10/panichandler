@@ -66,3 +66,14 @@ func Test_Capture(t *testing.T) {
 	}
 	t.Log(logstr)
 }
+
+func Text_CaptureGetContext(t *testing.T) {
+	c := New()
+	ctx := c.GetContext()
+	go func() {
+		defer c.Catch()
+		panic("Testing get context.")
+	}()
+	<-ctx.Done()
+	t.Log("Context canceled successfully.")
+}
