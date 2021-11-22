@@ -1,0 +1,23 @@
+project_name: ipify
+before:
+  hooks:
+    - go mod tidy
+builds:
+  -
+    skip: true
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+signs:
+  - artifacts: checksum
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^release:'
+source:
+  enabled: true
+  name_template: "{{ .ProjectName }}_source"
+  format: "tar.gz"
