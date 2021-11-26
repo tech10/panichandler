@@ -24,7 +24,7 @@ func newInfo(r interface{}, d []byte) *Info {
 	}
 	i := &Info{}
 	i.StackBytes = d
-	i.StackString = fmt.Sprintf("%s", d)
+	i.StackString = string(d)
 	i.PanicInterface = r
 	pstr := fmt.Sprintf("%s", r)
 	i.PanicString = pstr
