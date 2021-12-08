@@ -1,3 +1,3 @@
-module github.com/tech10/panic_handler
+module github.com/tech10/panicHandler
 
 go 1.11

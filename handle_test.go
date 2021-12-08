@@ -1,11 +1,11 @@
-package panic_handler
+package panicHandler
 
 import (
 	"sync"
 	"testing"
 )
 
-var called bool = false
+var called = false
 
 var l sync.Mutex
 

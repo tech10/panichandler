@@ -1,4 +1,4 @@
-package panic_handler
+package panicHandler
 
 import (
 	"sync"

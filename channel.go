@@ -1,4 +1,4 @@
-package panic_handler
+package panicHandler
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 
 // Send the *Info struct to a channel rather than a function.
 // Call it like this.
-// panic_handler.HandleWithChan(chan *panic_handler.Info).
+// panicHandler.HandleWithChan(chan *panicHandler.Info).
 func HandleWithChan(c chan<- *Info) {
 	i := newInfo(recover(), debug.Stack())
 	if i == nil {
