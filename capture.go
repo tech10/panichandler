@@ -58,7 +58,7 @@ func (c *Capture) catcher(r interface{}) {
 // Catch panics, call this in a defer statement.
 // Only do this if you have initialized the Capture struct
 // with a function, Task interface,
-// channel, or context.CancelFunc
+// channel, or context.CancelFunc.
 func (c *Capture) Catch() {
 	c.catcher(recover())
 }
