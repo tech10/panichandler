@@ -1,4 +1,4 @@
-package panicHandler
+package panichandler
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ type Task interface {
 
 // Handle panics within the Task interface.
 // Call it like this.
-// panicHandler.HandleTask(panicHandler.Task).
+// panichandler.HandleTask(panichandler.Task).
 func HandleTask(t Task) {
 	i := newInfo(recover(), debug.Stack())
 	if i == nil {

@@ -1,4 +1,4 @@
-package panicHandler
+package panichandler
 
 import (
 	"context"

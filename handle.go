@@ -1,5 +1,5 @@
 // Handle panics in a simple manner.
-package panicHandler
+package panichandler
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 // ExitCode used if one isn't provided.
-// This can be set with panicHandler.ExitCode = code.
+// This can be set with panichandler.ExitCode = code.
 var ExitCode = 111
 
 func caller(i *Info, c HandlerFunc, e int) bool {
@@ -32,7 +32,7 @@ func nestedPanic(i *Info, e int) {
 }
 
 // Handle panics. Call this in a defer statement, like this.
-// panicHandler.Handle(panicHandler.HandlerFunc).
+// panichandler.Handle(panichandler.HandlerFunc).
 func Handle(c HandlerFunc) {
 	i := newInfo(recover(), debug.Stack())
 	if i == nil {

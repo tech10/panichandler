@@ -1,4 +1,4 @@
-package panicHandler
+package panichandler
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 
 // Handle panics in a function and cancel the provided context.CancelFunc.
 // Call it like this.
-// panicHandler.HandleWithContextCancel(context.CancelFunc, panicHandler.HandlerFunc).
+// panichandler.HandleWithContextCancel(context.CancelFunc, panichandler.HandlerFunc).
 func HandleWithContextCancel(cancel context.CancelFunc, c HandlerFunc) {
 	i := newInfo(recover(), debug.Stack())
 	if i == nil {

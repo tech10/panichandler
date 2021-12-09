@@ -58,4 +58,4 @@
     extra-rules = true
 
 [linters-settings.stylecheck]
-    checks = ["all", "-ST1003"]
+    checks = ["all"]

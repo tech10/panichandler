@@ -1,4 +1,4 @@
-project_name: panic_handler
+project_name: panichandler
 before:
   hooks:
     - go mod tidy
