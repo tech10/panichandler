@@ -1,12 +1,13 @@
+name: Update release
+
 on:
-  release:
+  workflow_run:
+    workflows: ["goreleaser"]
     types:
-      - created
-    tags:
-      - 'v*'
+      - completed
 
 jobs:
-  build:
+  download:
     name: Update proxied module version
     runs-on: ubuntu-latest
     steps:
