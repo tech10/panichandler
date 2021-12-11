@@ -1,10 +1,11 @@
 name: Update release
 
 on:
-  workflow_run:
-    workflows: ["goreleaser"]
+  release:
     types:
-      - completed
+      - created
+    tags:
+      - 'v*'
 
 jobs:
   download:
