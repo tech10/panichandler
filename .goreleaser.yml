@@ -20,5 +20,6 @@ changelog:
       - '^release:'
 source:
   enabled: true
+  rlcp: true
   name_template: "{{ .ProjectName }}_source"
   format: "tar.gz"
