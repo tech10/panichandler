@@ -14,6 +14,5 @@ jobs:
       with:
         go-version: ${{ matrix.go-version }}
         check-latest: true
-        cache: true
     - name: Test
       run: go test -race -v ./...
