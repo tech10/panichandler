@@ -2,7 +2,7 @@
 
 This package will allow you to deal with panics in the following ways:
 
-- Call a function when a panic is called.
+- Call a function when a panic is caught.
 - Send the information from the panic over a channel.
 - Cancel contexts with a provided context.CancelFunc.
 - Implement the panichandler.Task interface by defining its DoPanicTask method.
