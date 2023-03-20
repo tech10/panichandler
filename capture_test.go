@@ -10,7 +10,7 @@ type captT struct {
 	f func()
 }
 
-func (c *captT) DoPanicTask(i *Info) {
+func (c *captT) DoPanicTask(_ *Info) {
 	c.f()
 }
 
